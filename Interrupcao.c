@@ -23,17 +23,19 @@ static volatile bool modo_boot = false;
 void inicializar_leds();
 void inicializar_botoes();
 void set_rgb(char cor);
-void atualizar_matriz();
 static void gpio_irq_handler(uint gpio, uint32_t events);
 
 int main()
 {
+    // Inicializa entrad e saida padrão
     stdio_init_all();
 
+    // incializa PIO para utilizar matriz de leds
     PIO pio = pio0;
     uint sm = configurar_matriz(pio);
     configurar_numero();
 
+    // Configura GPIO para os leds e botões
     inicializar_leds();
     inicializar_botoes();
     //cria gatilhos de interrupções para os os botões
@@ -45,7 +47,7 @@ int main()
         imprimir_numero(contador,pio,sm);
         if(modo_boot){
             printf("Entrando em bootsel em 5 segundos\n");
-            // pisca led azul e depois ativa o verde
+            // pisca led azul
             for(int i =0;i<5;i++){
                 set_rgb('B');
                 sleep_ms(500);
@@ -137,15 +139,22 @@ void set_rgb(char cor){
         break;
     }
 }
-
+/*
+|   Função gpio_irq_handler
+|   Realiza o tratamento da interrupção de GPIO
+|   
+*/
 static void gpio_irq_handler(uint gpio, uint32_t events){
     // implementando debounce 
     // obtém tempo absoluto do instante atual
     uint32_t tempo_atual = to_us_since_boot(get_absolute_time());
 
+    // se passou por um intervalo de ao menos 2ms
     if(tempo_atual - tempo_anterior > 200000){
         tempo_anterior = tempo_atual;
         printf("Interrupção gerada no botão:%d\n",gpio);
+        // A estrutura if else indentifica qual pino da GPIO lançou a interrupção
+        // e faz o tratamento de acordo a cada pino
         if(gpio == BOTAO_A){
             contador >= 9? contador:contador++;
         }
