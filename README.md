@@ -17,7 +17,6 @@ Na imagem abaixo tem-se o diagrama do circuito montado no simulador wocki.]
 3. O botão B deve decrementar o número exibido na matriz de LEDs cada vez que for pressionado.
 4. Os LEDs WS2812 devem ser usados para criar efeitos visuais representando números de 0 a 9.
 
-
 ## Requisitos
 
 1. A leitura dos botões deve ser realizada através de rotinas de interrupção utilizando a SDK do raspberry pi pico w
@@ -37,4 +36,45 @@ A placa bitdoglab possui dois pushs buttons nomeados A e B que podem ser usados 
 
 ## INTERRUPÇÕES
 
+Como solicitado nos requisitos a leitura dos botões foi implementada com o uso de interrupções.
+
+No codigo abaixo a função da sdk é utilizada para registrar as interrupções para os pinos do GPIO que estão com os botões
+
+```c
+//cria gatilhos de interrupções para os os botões
+    gpio_set_irq_enabled_with_callback(BOTAO_A,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+    gpio_set_irq_enabled_with_callback(BOTAO_B,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+    gpio_set_irq_enabled_with_callback(BOTAO_JkT,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+```
+
+A interrupção é gerada numa borda de descida de clock e o enderço da função de tratamento da interrupção é gerada.
+
+A função do tratamento de interrupção é declarada como abaixo, nela é escrita uma breve rotina que atualiza o valor do contador ou a a variavél de flag do modo bootsel.
+
+```
+static void gpio_irq_handler(uint gpio, uint32_t events);
+```
+
 ## DEBOUNCER
+
+Para evitar o efeito do bounce foi implementada uma verificação com temporizadores como é mostrado no codigo abaixo.
+
+```
+// Variavél para registro de tempo e controle de bounce da interrupção
+static volatile uint32_t tempo_anterior = 0; 
+```
+
+```
+// implementando debounce 
+    // obtém tempo absoluto do instante atual
+    uint32_t tempo_atual = to_us_since_boot(get_absolute_time());
+
+    if(tempo_atual - tempo_anterior > 200000){
+        tempo_anterior = tempo_atual;
+	.
+	.
+	.
+     }
+```
+
+Nesta configuração a interrupção vai ser gerada varias vezes devido ao bounce entretanto apenas uma ativação do tratamento dessa interrupção vai acontecer devido a espera de pelo menos 200ms do botão apertado.

@@ -140,7 +140,6 @@ void set_rgb(char cor){
 
 static void gpio_irq_handler(uint gpio, uint32_t events){
     // implementando debounce 
-
     // obtém tempo absoluto do instante atual
     uint32_t tempo_atual = to_us_since_boot(get_absolute_time());
 
