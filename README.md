@@ -78,3 +78,9 @@ static volatile uint32_t tempo_anterior = 0;
 ```
 
 Nesta configuração a interrupção vai ser gerada varias vezes devido ao bounce entretanto apenas uma ativação do tratamento dessa interrupção vai acontecer devido a espera de pelo menos 200ms do botão apertado.
+
+## VIDEO
+
+O video no link a seguir demonstra o codigo funcionando na placa bitdoglab
+
+[VIDEO DEMONSTRAÇÃO](https://drive.google.com/file/d/1cIqvDkw3QAjEsGJLjyqhuZub4tlJfhqr/view?usp=sharing)
